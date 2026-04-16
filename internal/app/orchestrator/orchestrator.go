@@ -6,6 +6,7 @@ import (
 	"Go_K8_Automate/internal/config"
 	"Go_K8_Automate/internal/models"
 	updateos "Go_K8_Automate/internal/workflows/01-update-os"
+	disableswap "Go_K8_Automate/internal/workflows/02-disable-swap"
 )
 
 // Orchestrator coordinates execution of workflow workflows.
@@ -17,6 +18,7 @@ type Orchestrator struct {
 func New(cfg *config.Config) *Orchestrator {
 	workflows := []models.Workflow{
 		updateos.New(cfg),
+		disableswap.New(cfg),
 	}
 
 	return &Orchestrator{
