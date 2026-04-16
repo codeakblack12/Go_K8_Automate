@@ -103,3 +103,123 @@ Locks exact dependency checksums for reproducible builds.
 
 The goal is to automate Kubernetes cluster creation in a clean, repeatable, and maintainable way using Go.
 
+
+k8s-cluster-creator/
+├── cmd/
+│   └── clusterctl/
+│       └── main.go
+│
+├── internal/
+│   ├── app/
+│   │   ├── orchestrator/
+│   │   ├── planner/
+│   │   └── workflow/
+│   │
+│   ├── config/
+│   │   ├── config.go
+│   │   ├── defaults.go
+│   │   └── validate.go
+│   │
+│   ├── executor/
+│   │   ├── local/
+│   │   ├── remote/
+│   │   └── common/
+│   │
+│   ├── workflows/
+│   │   ├── 01-update-os/
+│   │   │   ├── step.go
+│   │   │   ├── ubuntu.go
+│   │   │   └── checks.go
+│   │   │
+│   │   ├── 02-disable-swap/
+│   │   │   ├── step.go
+│   │   │   ├── swapoff.go
+│   │   │   └── checks.go
+│   │   │
+│   │   ├── 03-install-container-runtime/
+│   │   │   ├── step.go
+│   │   │   ├── containerd.go
+│   │   │   └── checks.go
+│   │   │
+│   │   ├── 04-configure-containers/
+│   │   │   ├── step.go
+│   │   │   ├── sysctl.go
+│   │   │   ├── kernel_modules.go
+│   │   │   ├── cgroup.go
+│   │   │   └── checks.go
+│   │   │
+│   │   ├── 05-install-k8s-components/
+│   │   │   ├── step.go
+│   │   │   ├── kubeadm.go
+│   │   │   ├── kubelet.go
+│   │   │   ├── kubectl.go
+│   │   │   └── checks.go
+│   │   │
+│   │   ├── 06-initialize-cluster/
+│   │   │   ├── step.go
+│   │   │   ├── init_control_plane.go
+│   │   │   ├── token.go
+│   │   │   └── checks.go
+│   │   │
+│   │   ├── 07-configure-kubectl-access/
+│   │   │   ├── step.go
+│   │   │   ├── kubeconfig.go
+│   │   │   └── checks.go
+│   │   │
+│   │   └── 08-install-pod-network/
+│   │       ├── step.go
+│   │       ├── calico.go
+│   │       ├── cilium.go
+│   │       └── checks.go
+│   │
+│   ├── models/
+│   │   ├── cluster.go
+│   │   ├── node.go
+│   │   ├── step.go
+│   │   └── result.go
+│   │
+│   ├── templates/
+│   │   ├── containerd/
+│   │   ├── kubeadm/
+│   │   ├── sysctl/
+│   │   └── networking/
+│   │
+│   └── utils/
+│       ├── logger/
+│       ├── retry/
+│       ├── shell/
+│       ├── files/
+│       └── errors/
+│
+├── pkg/
+│   ├── api/
+│   └── version/
+│
+├── deployments/
+│   ├── sample-configs/
+│   └── manifests/
+│
+├── scripts/
+│   ├── dev/
+│   └── test/
+│
+├── test/
+│   ├── integration/
+│   ├── e2e/
+│   └── fixtures/
+│
+├── docs/
+│   ├── architecture/
+│   ├── workflow/
+│   └── examples/
+│
+├── configs/
+│   ├── cluster.yaml
+│   ├── nodes.yaml
+│   └── runtime.yaml
+│
+├── Makefile
+├── go.mod
+├── go.sum
+└── README.md
+
