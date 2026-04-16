@@ -2,12 +2,14 @@ package config
 
 // Config stores runtime settings for the cluster creator application.
 type Config struct {
-	OSFamily string
+	OSFamily              string
+	KubernetesRepoVersion string
 }
 
 // New creates a Config populated with default values.
 func New() *Config {
 	return &Config{
-		OSFamily: defaultOSFamily,
+		OSFamily:              defaultOSFamily,
+		KubernetesRepoVersion: defaultKubernetesRepoVersion,
 	}
 }

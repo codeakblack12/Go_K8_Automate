@@ -6,8 +6,13 @@ import "fmt"
 func (c *Config) Validate() error {
 	switch c.OSFamily {
 	case "ubuntu":
-		return nil
 	default:
 		return fmt.Errorf("unsupported OS family: %s", c.OSFamily)
 	}
+
+	if c.KubernetesRepoVersion == "" {
+		return fmt.Errorf("kubernetes repo version cannot be empty")
+	}
+
+	return nil
 }

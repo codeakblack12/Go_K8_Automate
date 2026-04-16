@@ -1,4 +1,6 @@
 package config
 
-// defaultOSFamily is the default target operating system family.
-const defaultOSFamily = "ubuntu"
+const (
+	defaultOSFamily              = "ubuntu"
+	defaultKubernetesRepoVersion = "v1.35"
+)
