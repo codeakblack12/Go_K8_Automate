@@ -85,6 +85,14 @@ func (s *Step) installUbuntuPackages() error {
 		return err
 	}
 
+	enableKubeletCmd := common.Command{
+		Name: "sudo",
+		Args: []string{"systemctl", "enable", "--now", "kubelet"},
+	}
+	if err := s.executor.Run(enableKubeletCmd); err != nil {
+		return err
+	}
+
 	fmt.Println("STEP 5 complete: kubelet, kubeadm, and kubectl installed")
 	return nil
 }

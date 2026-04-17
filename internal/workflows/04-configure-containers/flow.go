@@ -5,7 +5,8 @@ import (
 	"Go_K8_Automate/internal/executor/local"
 )
 
-// Step handles workflow step 04: configuring containerd for Kubernetes.
+// Step handles workflow step 04: configuring the container runtime
+// and required host networking settings for Kubernetes.
 type Step struct {
 	config   *config.Config
 	executor *local.Executor
@@ -24,9 +25,18 @@ func (s *Step) Name() string {
 	return "04-configure-containers"
 }
 
-// Run validates prerequisites, configures containerd, and verifies the result.
+// Run validates prerequisites, configures kernel modules,
+// sysctl settings, containerd, and verifies the result.
 func (s *Step) Run() error {
 	if err := s.checkPrerequisites(); err != nil {
+		return err
+	}
+
+	if err := s.configureKernelModules(); err != nil {
+		return err
+	}
+
+	if err := s.configureSysctl(); err != nil {
 		return err
 	}
 
@@ -35,6 +45,10 @@ func (s *Step) Run() error {
 	}
 
 	if err := s.checkContainerdConfigured(); err != nil {
+		return err
+	}
+
+	if err := s.checkIPForwardingEnabled(); err != nil {
 		return err
 	}
 

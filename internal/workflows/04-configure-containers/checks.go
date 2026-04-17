@@ -41,3 +41,20 @@ func (s *Step) checkContainerdConfigured() error {
 
 	return nil
 }
+
+// checkIPForwardingEnabled verifies that IPv4 forwarding is enabled.
+func (s *Step) checkIPForwardingEnabled() error {
+	cmd := exec.Command("sh", "-c", "cat /proc/sys/net/ipv4/ip_forward")
+	var out bytes.Buffer
+	cmd.Stdout = &out
+
+	if err := cmd.Run(); err != nil {
+		return fmt.Errorf("failed to verify net.ipv4.ip_forward: %w", err)
+	}
+
+	if strings.TrimSpace(out.String()) != "1" {
+		return fmt.Errorf("ip forwarding verification failed: net.ipv4.ip_forward is not set to 1")
+	}
+
+	return nil
+}
