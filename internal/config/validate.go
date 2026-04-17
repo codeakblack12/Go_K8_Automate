@@ -14,5 +14,13 @@ func (c *Config) Validate() error {
 		return fmt.Errorf("kubernetes repo version cannot be empty")
 	}
 
+	if c.APIServerAddress == "" {
+		return fmt.Errorf("API server address cannot be empty")
+	}
+
+	if c.PodNetworkCIDR == "" {
+		return fmt.Errorf("pod network CIDR cannot be empty")
+	}
+
 	return nil
 }

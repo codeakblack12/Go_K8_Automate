@@ -9,6 +9,8 @@ import (
 	disableswap "Go_K8_Automate/internal/workflows/02-disable-swap"
 	installcontainerruntime "Go_K8_Automate/internal/workflows/03-install-container-runtime"
 	configurecontainers "Go_K8_Automate/internal/workflows/04-configure-containers"
+	installk8scomponents "Go_K8_Automate/internal/workflows/05-install-k8s-components"
+	initializecluster "Go_K8_Automate/internal/workflows/06-initialize-cluster"
 )
 
 // Orchestrator coordinates execution of workflow workflows.
@@ -23,6 +25,8 @@ func New(cfg *config.Config) *Orchestrator {
 		disableswap.New(cfg),
 		installcontainerruntime.New(cfg),
 		configurecontainers.New(cfg),
+		installk8scomponents.New(cfg),
+		initializecluster.New(cfg),
 	}
 
 	return &Orchestrator{
