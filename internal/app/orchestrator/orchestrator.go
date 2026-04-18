@@ -11,6 +11,7 @@ import (
 	configurecontainers "Go_K8_Automate/internal/workflows/04-configure-containers"
 	installk8scomponents "Go_K8_Automate/internal/workflows/05-install-k8s-components"
 	initializecluster "Go_K8_Automate/internal/workflows/06-initialize-cluster"
+	configurekubectlaccess "Go_K8_Automate/internal/workflows/07-configure-kubectl-access"
 )
 
 // Orchestrator coordinates execution of workflow workflows.
@@ -27,6 +28,7 @@ func New(cfg *config.Config) *Orchestrator {
 		configurecontainers.New(cfg),
 		installk8scomponents.New(cfg),
 		initializecluster.New(cfg),
+		configurekubectlaccess.New(cfg),
 	}
 
 	return &Orchestrator{
