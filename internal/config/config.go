@@ -7,6 +7,9 @@ type Config struct {
 	APIServerAddress      string
 	PodNetworkCIDR        string
 	KubernetesVersion     string
+	NodeRole              string
+	JoinCommand           string
+	PodNetworkPlugin      string
 }
 
 // New creates a Config populated with default values.
@@ -17,5 +20,8 @@ func New() *Config {
 		APIServerAddress:      defaultAPIServerAddress,
 		PodNetworkCIDR:        defaultPodNetworkCIDR,
 		KubernetesVersion:     defaultKubernetesVersion,
+		NodeRole:              defaultNodeRole,
+		JoinCommand:           "",
+		PodNetworkPlugin:      defaultPodNetworkPlugin,
 	}
 }

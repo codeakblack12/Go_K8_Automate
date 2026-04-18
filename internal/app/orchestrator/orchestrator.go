@@ -12,6 +12,7 @@ import (
 	installk8scomponents "Go_K8_Automate/internal/workflows/05-install-k8s-components"
 	initializecluster "Go_K8_Automate/internal/workflows/06-initialize-cluster"
 	configurekubectlaccess "Go_K8_Automate/internal/workflows/07-configure-kubectl-access"
+	installpodnetwork "Go_K8_Automate/internal/workflows/08-install-pod-network"
 )
 
 // Orchestrator coordinates execution of workflow workflows.
@@ -21,14 +22,33 @@ type Orchestrator struct {
 
 // New creates a new Orchestrator with the configured workflow workflows.
 func New(cfg *config.Config) *Orchestrator {
+	// workflows := []models.Workflow{
+	// 	updateos.New(cfg),
+	// 	disableswap.New(cfg),
+	// 	installcontainerruntime.New(cfg),
+	// 	configurecontainers.New(cfg),
+	// 	installk8scomponents.New(cfg),
+	// 	initializecluster.New(cfg),
+	// 	configurekubectlaccess.New(cfg),
+
+	// }
 	workflows := []models.Workflow{
 		updateos.New(cfg),
 		disableswap.New(cfg),
 		installcontainerruntime.New(cfg),
 		configurecontainers.New(cfg),
 		installk8scomponents.New(cfg),
-		initializecluster.New(cfg),
-		configurekubectlaccess.New(cfg),
+	}
+
+	switch cfg.NodeRole {
+	case "master":
+		workflows = append(workflows,
+			initializecluster.New(cfg),
+			configurekubectlaccess.New(cfg),
+			installpodnetwork.New(cfg),
+		)
+	case "worker":
+		// worker-specific join step will be added here later
 	}
 
 	return &Orchestrator{
