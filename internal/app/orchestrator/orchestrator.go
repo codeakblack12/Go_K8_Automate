@@ -13,6 +13,7 @@ import (
 	initializecluster "Go_K8_Automate/internal/workflows/06-initialize-cluster"
 	configurekubectlaccess "Go_K8_Automate/internal/workflows/07-configure-kubectl-access"
 	installpodnetwork "Go_K8_Automate/internal/workflows/08-install-pod-network"
+	joinworkernode "Go_K8_Automate/internal/workflows/09-join-worker-node"
 )
 
 // Orchestrator coordinates execution of workflow workflows.
@@ -48,7 +49,9 @@ func New(cfg *config.Config) *Orchestrator {
 			installpodnetwork.New(cfg),
 		)
 	case "worker":
-		// worker-specific join step will be added here later
+		workflows = append(workflows,
+			joinworkernode.New(cfg),
+		)
 	}
 
 	return &Orchestrator{
