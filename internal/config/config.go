@@ -9,7 +9,9 @@ type Config struct {
 	KubernetesVersion     string
 	NodeRole              string
 	JoinCommand           string
+	JoinCode              string
 	PodNetworkPlugin      string
+	JoinServiceBaseURL    string
 }
 
 // New creates a Config populated with default values.
@@ -22,6 +24,8 @@ func New() *Config {
 		KubernetesVersion:     defaultKubernetesVersion,
 		NodeRole:              defaultNodeRole,
 		JoinCommand:           "",
+		JoinCode:              "",
 		PodNetworkPlugin:      defaultPodNetworkPlugin,
+		JoinServiceBaseURL:    defaultJoinServiceBaseURL,
 	}
 }

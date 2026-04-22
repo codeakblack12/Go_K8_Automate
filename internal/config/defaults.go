@@ -8,4 +8,5 @@ const (
 	defaultKubernetesVersion     = ""
 	defaultNodeRole              = "master"
 	defaultPodNetworkPlugin      = "calico"
+	defaultJoinServiceBaseURL    = "http://localhost:3000"
 )

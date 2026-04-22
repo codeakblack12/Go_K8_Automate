@@ -1,32 +1,27 @@
 package initializecluster
 
 import (
+	"bytes"
 	"fmt"
-	"os"
-
-	"Go_K8_Automate/internal/executor/common"
+	"os/exec"
+	"strings"
 )
 
-// createJoinCommand generates and stores the worker join command.
+// createJoinCommand generates the kubeadm join command for worker nodes.
 func (s *Step) createJoinCommand() error {
-	fmt.Println("Generating worker join command...")
+	cmd := exec.Command("sudo", "kubeadm", "token", "create", "--print-join-command")
 
-	joinCmd := common.Command{
-		Name: "sh",
-		Args: []string{
-			"-c",
-			"sudo kubeadm token create --print-join-command | tee join-command.sh > /dev/null",
-		},
+	var out bytes.Buffer
+	cmd.Stdout = &out
+
+	if err := cmd.Run(); err != nil {
+		return fmt.Errorf("failed to generate join command: %w", err)
 	}
 
-	if err := s.executor.Run(joinCmd); err != nil {
-		return err
+	s.joinCommand = strings.TrimSpace(out.String())
+	if s.joinCommand == "" {
+		return fmt.Errorf("generated join command is empty")
 	}
 
-	if err := os.Chmod("join-command.sh", 0700); err != nil {
-		return fmt.Errorf("failed to set permissions on join-command.sh: %w", err)
-	}
-
-	fmt.Println("Worker join command saved to join-command.sh")
 	return nil
 }

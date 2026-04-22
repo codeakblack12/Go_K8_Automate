@@ -35,8 +35,8 @@ func (c *Config) Validate() error {
 		}
 	}
 
-	if c.NodeRole == "worker" && c.JoinCommand == "" {
-		return fmt.Errorf("join command cannot be empty for worker nodes")
+	if c.NodeRole == "worker" && c.JoinCode == "" && c.JoinCommand == "" {
+		return fmt.Errorf("worker nodes require either join code or join command")
 	}
 
 	return nil
