@@ -8,5 +8,5 @@ const (
 	defaultKubernetesVersion     = ""
 	defaultNodeRole              = "master"
 	defaultPodNetworkPlugin      = "calico"
-	defaultJoinServiceBaseURL    = "http://localhost:3000"
+	defaultJoinServiceBaseURL    = "https://4359-2604-3d08-2477-3300-5a1-1f18-face-f16.ngrok-free.app"
 )
