@@ -24,6 +24,7 @@ func main() {
 	podNetworkPlugin := flag.String("pod-network-plugin", cfg.PodNetworkPlugin, "Pod network plugin: calico or cilium")
 	kubernetesVersion := flag.String("kubernetes-version", cfg.KubernetesVersion, "Optional Kubernetes version for kubeadm init")
 	repoVersion := flag.String("repo-version", cfg.KubernetesRepoVersion, "Kubernetes apt repository version, e.g. v1.35")
+	resetNode := flag.Bool("reset-node", false, "If true, reset the node with kubeadm reset before initializing")
 
 	flag.Parse()
 
@@ -36,6 +37,7 @@ func main() {
 	cfg.PodNetworkPlugin = *podNetworkPlugin
 	cfg.KubernetesVersion = *kubernetesVersion
 	cfg.KubernetesRepoVersion = *repoVersion
+	cfg.ResetNode = *resetNode
 
 	if err := cfg.Validate(); err != nil {
 		fmt.Fprintf(os.Stderr, "configuration error: %v\n", err)

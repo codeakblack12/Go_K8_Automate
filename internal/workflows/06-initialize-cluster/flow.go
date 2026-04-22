@@ -4,6 +4,7 @@ import (
 	"Go_K8_Automate/internal/api/joincode"
 	"Go_K8_Automate/internal/config"
 	"Go_K8_Automate/internal/executor/local"
+	"fmt"
 )
 
 // Step handles workflow step 06: initializing the Kubernetes cluster.
@@ -34,6 +35,22 @@ func (s *Step) Name() string {
 func (s *Step) Run() error {
 	if err := s.checkPrerequisites(); err != nil {
 		return err
+	}
+
+	// New: detect existing control-plane and optionally reset
+	exists, err := s.checkExistingControlPlane()
+	if err != nil {
+		return err
+	}
+
+	if exists {
+		if !s.config.ResetNode {
+			return fmt.Errorf("existing control-plane state detected on this node; rerun with --reset-node if you want to reset it")
+		}
+
+		if err := s.resetNode(); err != nil {
+			return err
+		}
 	}
 
 	if err := s.initControlPlane(); err != nil {

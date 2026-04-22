@@ -12,6 +12,7 @@ type Config struct {
 	JoinCode              string
 	PodNetworkPlugin      string
 	JoinServiceBaseURL    string
+	ResetNode             bool
 }
 
 // New creates a Config populated with default values.
@@ -27,5 +28,6 @@ func New() *Config {
 		JoinCode:              "",
 		PodNetworkPlugin:      defaultPodNetworkPlugin,
 		JoinServiceBaseURL:    defaultJoinServiceBaseURL,
+		ResetNode:             defaultResetNode,
 	}
 }
