@@ -16,6 +16,17 @@ import (
 func main() {
 	cfg := config.New()
 
+	if cfg.NodeRole == "master" && cfg.APIServerAddress == "" {
+		detectedIP, err := network.DetectPrimaryIPv4()
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "failed to detect API server address automatically: %v\n", err)
+			os.Exit(1)
+		}
+
+		cfg.APIServerAddress = detectedIP
+		fmt.Printf("Detected API server advertise address: %s\n", cfg.APIServerAddress)
+	}
+
 	role := flag.String("role", cfg.NodeRole, "Node role: master or worker")
 	joinCommand := flag.String("join-command", cfg.JoinCommand, "Full kubeadm join command for worker nodes")
 	joinCode := flag.String("join-code", cfg.JoinCode, "Short join code for worker nodes")
@@ -50,17 +61,6 @@ func main() {
 	if err := orch.Run(); err != nil {
 		fmt.Fprintf(os.Stderr, "cluster setup failed: %v\n", err)
 		os.Exit(1)
-	}
-
-	if cfg.NodeRole == "master" && cfg.APIServerAddress == "" {
-		detectedIP, err := network.DetectPrimaryIPv4()
-		if err != nil {
-			fmt.Fprintf(os.Stderr, "failed to detect API server address automatically: %v\n", err)
-			os.Exit(1)
-		}
-
-		cfg.APIServerAddress = detectedIP
-		fmt.Printf("Detected API server advertise address: %s\n", cfg.APIServerAddress)
 	}
 
 	fmt.Println("cluster setup completed successfully")
