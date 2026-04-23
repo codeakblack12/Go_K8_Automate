@@ -49,9 +49,9 @@ func (s *Step) Run() error {
 		}
 	}
 
-	if err := s.writeKubeadmConfig(); err != nil {
-		return err
-	}
+	// if err := s.writeKubeadmConfig(); err != nil {
+	// 	return err
+	// }
 
 	if err := s.initControlPlane(); err != nil {
 		return err
