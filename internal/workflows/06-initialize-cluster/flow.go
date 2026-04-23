@@ -16,7 +16,6 @@ type Step struct {
 	joinCode       string
 }
 
-// New creates a new initialize-cluster step.
 func New(cfg *config.Config) *Step {
 	return &Step{
 		config:         cfg,
@@ -25,19 +24,15 @@ func New(cfg *config.Config) *Step {
 	}
 }
 
-// Name returns the workflow step name.
 func (s *Step) Name() string {
 	return "06-initialize-cluster"
 }
 
-// Run validates prerequisites, initializes the control plane,
-// creates a join command, and verifies success.
 func (s *Step) Run() error {
 	if err := s.checkPrerequisites(); err != nil {
 		return err
 	}
 
-	// New: detect existing control-plane and optionally reset
 	exists, err := s.checkExistingControlPlane()
 	if err != nil {
 		return err
@@ -62,6 +57,18 @@ func (s *Step) Run() error {
 	}
 
 	if err := s.publishJoinCode(); err != nil {
+		return err
+	}
+
+	if err := s.uploadControlPlaneCerts(); err != nil {
+		return err
+	}
+
+	if err := s.createControlPlaneJoinCommand(); err != nil {
+		return err
+	}
+
+	if err := s.publishControlPlaneJoinCode(); err != nil {
 		return err
 	}
 

@@ -16,6 +16,34 @@ import (
 func main() {
 	cfg := config.New()
 
+	role := flag.String("role", cfg.NodeRole, "Node role: master, worker, or control-plane")
+	joinCommand := flag.String("join-command", cfg.JoinCommand, "Full kubeadm join command for worker nodes")
+	joinCode := flag.String("join-code", cfg.JoinCode, "Short join code for worker nodes")
+	controlPlaneJoinCommand := flag.String("control-plane-join-command", cfg.ControlPlaneJoinCommand, "Full kubeadm join command for control-plane nodes")
+	controlPlaneJoinCode := flag.String("control-plane-join-code", cfg.ControlPlaneJoinCode, "Short join code for control-plane nodes")
+	joinServiceURL := flag.String("join-service-url", cfg.JoinServiceBaseURL, "Base URL for the join-code service")
+	apiServerAddress := flag.String("apiserver-address", cfg.APIServerAddress, "API server advertise address for master node")
+	podNetworkCIDR := flag.String("pod-network-cidr", cfg.PodNetworkCIDR, "Pod network CIDR for cluster initialization")
+	podNetworkPlugin := flag.String("pod-network-plugin", cfg.PodNetworkPlugin, "Pod network plugin: calico or cilium")
+	kubernetesVersion := flag.String("kubernetes-version", cfg.KubernetesVersion, "Optional Kubernetes version for kubeadm init")
+	repoVersion := flag.String("repo-version", cfg.KubernetesRepoVersion, "Kubernetes apt repository version, e.g. v1.35")
+	resetNode := flag.Bool("reset-node", cfg.ResetNode, "If true, reset the node with kubeadm reset before initializing")
+
+	flag.Parse()
+
+	cfg.NodeRole = *role
+	cfg.JoinCommand = *joinCommand
+	cfg.JoinCode = *joinCode
+	cfg.ControlPlaneJoinCommand = *controlPlaneJoinCommand
+	cfg.ControlPlaneJoinCode = *controlPlaneJoinCode
+	cfg.JoinServiceBaseURL = *joinServiceURL
+	cfg.APIServerAddress = *apiServerAddress
+	cfg.PodNetworkCIDR = *podNetworkCIDR
+	cfg.PodNetworkPlugin = *podNetworkPlugin
+	cfg.KubernetesVersion = *kubernetesVersion
+	cfg.KubernetesRepoVersion = *repoVersion
+	cfg.ResetNode = *resetNode
+
 	if cfg.NodeRole == "master" && cfg.APIServerAddress == "" {
 		detectedIP, err := network.DetectPrimaryIPv4()
 		if err != nil {
@@ -26,30 +54,6 @@ func main() {
 		cfg.APIServerAddress = detectedIP
 		fmt.Printf("Detected API server advertise address: %s\n", cfg.APIServerAddress)
 	}
-
-	role := flag.String("role", cfg.NodeRole, "Node role: master or worker")
-	joinCommand := flag.String("join-command", cfg.JoinCommand, "Full kubeadm join command for worker nodes")
-	joinCode := flag.String("join-code", cfg.JoinCode, "Short join code for worker nodes")
-	joinServiceURL := flag.String("join-service-url", cfg.JoinServiceBaseURL, "Base URL for the join-code service")
-	apiServerAddress := flag.String("apiserver-address", cfg.APIServerAddress, "API server advertise address for master node")
-	podNetworkCIDR := flag.String("pod-network-cidr", cfg.PodNetworkCIDR, "Pod network CIDR for cluster initialization")
-	podNetworkPlugin := flag.String("pod-network-plugin", cfg.PodNetworkPlugin, "Pod network plugin: calico or cilium")
-	kubernetesVersion := flag.String("kubernetes-version", cfg.KubernetesVersion, "Optional Kubernetes version for kubeadm init")
-	repoVersion := flag.String("repo-version", cfg.KubernetesRepoVersion, "Kubernetes apt repository version, e.g. v1.35")
-	resetNode := flag.Bool("reset-node", false, "If true, reset the node with kubeadm reset before initializing")
-
-	flag.Parse()
-
-	cfg.NodeRole = *role
-	cfg.JoinCommand = *joinCommand
-	cfg.JoinCode = *joinCode
-	cfg.JoinServiceBaseURL = *joinServiceURL
-	cfg.APIServerAddress = *apiServerAddress
-	cfg.PodNetworkCIDR = *podNetworkCIDR
-	cfg.PodNetworkPlugin = *podNetworkPlugin
-	cfg.KubernetesVersion = *kubernetesVersion
-	cfg.KubernetesRepoVersion = *repoVersion
-	cfg.ResetNode = *resetNode
 
 	if err := cfg.Validate(); err != nil {
 		fmt.Fprintf(os.Stderr, "configuration error: %v\n", err)
@@ -65,3 +69,15 @@ func main() {
 
 	fmt.Println("cluster setup completed successfully")
 }
+
+// go run ./cmd/clusterctl --role master --reset-node
+
+// go run ./cmd/clusterctl \
+//   --role worker \
+//   --join-code ABC123 \
+//   --join-service-url http://<api-host>:3000
+
+// go run ./cmd/clusterctl \
+//   --role control-plane \
+//   --control-plane-join-code XYZ789 \
+//   --join-service-url http://<api-host>:3000

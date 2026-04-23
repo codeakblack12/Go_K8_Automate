@@ -24,9 +24,10 @@ func NewClient(baseURL string) *Client {
 	}
 }
 
-func (c *Client) Create(joinCommand string) (*CreateJoinCodeResponse, error) {
+func (c *Client) Create(joinCommand, nodeRole string) (*CreateJoinCodeResponse, error) {
 	payload := CreateJoinCodeRequest{
 		JoinCommand: strings.TrimSpace(joinCommand),
+		NodeRole:    strings.TrimSpace(nodeRole),
 	}
 
 	body, err := json.Marshal(payload)
@@ -34,7 +35,7 @@ func (c *Client) Create(joinCommand string) (*CreateJoinCodeResponse, error) {
 		return nil, fmt.Errorf("failed to marshal create join-code request: %w", err)
 	}
 
-	req, err := http.NewRequest(http.MethodPost, c.baseURL+"/join", bytes.NewBuffer(body))
+	req, err := http.NewRequest(http.MethodPost, c.baseURL+"/api/v1/join", bytes.NewBuffer(body))
 	if err != nil {
 		return nil, fmt.Errorf("failed to create join-code request: %w", err)
 	}
@@ -54,10 +55,7 @@ func (c *Client) Create(joinCommand string) (*CreateJoinCodeResponse, error) {
 	}
 
 	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
-		return nil, &HTTPError{
-			StatusCode: resp.StatusCode,
-			Body:       string(respBody),
-		}
+		return nil, fmt.Errorf("join-code create API returned status %d: %s", resp.StatusCode, string(respBody))
 	}
 
 	var result CreateJoinCodeResponse
@@ -71,7 +69,7 @@ func (c *Client) Create(joinCommand string) (*CreateJoinCodeResponse, error) {
 func (c *Client) Resolve(joinCode string) (*ResolveJoinCodeResponse, error) {
 	joinCode = strings.TrimSpace(joinCode)
 
-	req, err := http.NewRequest(http.MethodGet, c.baseURL+"/resolve/"+joinCode, nil)
+	req, err := http.NewRequest(http.MethodGet, c.baseURL+"/api/v1/resolve/"+joinCode, nil)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create resolve join-code request: %w", err)
 	}
@@ -90,10 +88,7 @@ func (c *Client) Resolve(joinCode string) (*ResolveJoinCodeResponse, error) {
 	}
 
 	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
-		return nil, &HTTPError{
-			StatusCode: resp.StatusCode,
-			Body:       string(respBody),
-		}
+		return nil, fmt.Errorf("resolve join-code API returned status %d: %s", resp.StatusCode, string(respBody))
 	}
 
 	var result ResolveJoinCodeResponse

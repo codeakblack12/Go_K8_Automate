@@ -4,7 +4,7 @@ import (
 	"fmt"
 
 	"Go_K8_Automate/internal/config"
-	"Go_K8_Automate/internal/models"
+	// "Go_K8_Automate/internal/models"
 	updateos "Go_K8_Automate/internal/workflows/01-update-os"
 	disableswap "Go_K8_Automate/internal/workflows/02-disable-swap"
 	installcontainerruntime "Go_K8_Automate/internal/workflows/03-install-container-runtime"
@@ -14,60 +14,64 @@ import (
 	configurekubectlaccess "Go_K8_Automate/internal/workflows/07-configure-kubectl-access"
 	installpodnetwork "Go_K8_Automate/internal/workflows/08-install-pod-network"
 	joinworkernode "Go_K8_Automate/internal/workflows/09-join-worker-node"
+	joincontrolplane "Go_K8_Automate/internal/workflows/10-join-control-plane"
 )
 
 // Orchestrator coordinates execution of workflow workflows.
-type Orchestrator struct {
-	workflows []models.Workflow
+type Runnable interface {
+	Name() string
+	Run() error
 }
 
-// New creates a new Orchestrator with the configured workflow workflows.
-func New(cfg *config.Config) *Orchestrator {
-	// workflows := []models.Workflow{
-	// 	updateos.New(cfg),
-	// 	disableswap.New(cfg),
-	// 	installcontainerruntime.New(cfg),
-	// 	configurecontainers.New(cfg),
-	// 	installk8scomponents.New(cfg),
-	// 	initializecluster.New(cfg),
-	// 	configurekubectlaccess.New(cfg),
+type Orchestrator struct {
+	config *config.Config
+	steps  []Runnable
+}
 
-	// }
-	workflows := []models.Workflow{
-		updateos.New(cfg),
-		disableswap.New(cfg),
-		installcontainerruntime.New(cfg),
-		configurecontainers.New(cfg),
-		installk8scomponents.New(cfg),
+func New(cfg *config.Config) *Orchestrator {
+	o := &Orchestrator{
+		config: cfg,
 	}
 
-	switch cfg.NodeRole {
+	o.steps = o.buildSteps()
+	return o
+}
+
+func (o *Orchestrator) buildSteps() []Runnable {
+	common := []Runnable{
+		updateos.New(o.config),
+		disableswap.New(o.config),
+		installcontainerruntime.New(o.config),
+		configurecontainers.New(o.config),
+		installk8scomponents.New(o.config),
+	}
+
+	switch o.config.NodeRole {
 	case "master":
-		workflows = append(workflows,
-			initializecluster.New(cfg),
-			configurekubectlaccess.New(cfg),
-			installpodnetwork.New(cfg),
+		return append(common,
+			initializecluster.New(o.config),
+			configurekubectlaccess.New(o.config),
+			installpodnetwork.New(o.config),
 		)
 	case "worker":
-		workflows = append(workflows,
-			joinworkernode.New(cfg),
+		return append(common,
+			joinworkernode.New(o.config),
 		)
-	}
-
-	return &Orchestrator{
-		workflows: workflows,
+	case "control-plane":
+		return append(common,
+			joincontrolplane.New(o.config),
+		)
+	default:
+		return common
 	}
 }
 
-// Run executes the configured workflows in order.
 func (o *Orchestrator) Run() error {
-	for _, workflow := range o.workflows {
-		fmt.Printf("Running %s...\n", workflow.Name())
-
-		if err := workflow.Run(); err != nil {
-			return fmt.Errorf("%s failed: %w", workflow.Name(), err)
+	for _, step := range o.steps {
+		fmt.Printf("Running %s...\n", step.Name())
+		if err := step.Run(); err != nil {
+			return fmt.Errorf("%s failed: %w", step.Name(), err)
 		}
 	}
-
 	return nil
 }

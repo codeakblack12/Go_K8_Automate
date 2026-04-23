@@ -1,9 +1,21 @@
 package config
 
-import "fmt"
+import (
+	"fmt"
+	"strings"
+)
 
-// Validate checks whether the configuration contains supported values.
 func (c *Config) Validate() error {
+	c.NodeRole = strings.ToLower(strings.TrimSpace(c.NodeRole))
+	c.PodNetworkPlugin = strings.ToLower(strings.TrimSpace(c.PodNetworkPlugin))
+	c.JoinServiceBaseURL = strings.TrimRight(strings.TrimSpace(c.JoinServiceBaseURL), "/")
+	c.JoinCode = strings.TrimSpace(c.JoinCode)
+	c.JoinCommand = strings.TrimSpace(c.JoinCommand)
+	c.ControlPlaneJoinCode = strings.TrimSpace(c.ControlPlaneJoinCode)
+	c.ControlPlaneJoinCommand = strings.TrimSpace(c.ControlPlaneJoinCommand)
+	c.CertificateKey = strings.TrimSpace(c.CertificateKey)
+	c.ControlPlaneEndpoint = strings.TrimSpace(c.ControlPlaneEndpoint)
+
 	switch c.OSFamily {
 	case "ubuntu":
 	default:
@@ -11,7 +23,7 @@ func (c *Config) Validate() error {
 	}
 
 	switch c.NodeRole {
-	case "master", "worker":
+	case "master", "worker", "control-plane":
 	default:
 		return fmt.Errorf("unsupported node role: %s", c.NodeRole)
 	}
@@ -26,17 +38,20 @@ func (c *Config) Validate() error {
 		return fmt.Errorf("kubernetes repo version cannot be empty")
 	}
 
-	if c.NodeRole == "master" {
-		if c.APIServerAddress == "" {
-			return fmt.Errorf("API server address cannot be empty for master nodes")
-		}
-		if c.PodNetworkCIDR == "" {
-			return fmt.Errorf("pod network CIDR cannot be empty for master nodes")
-		}
+	if c.NodeRole == "master" && c.APIServerAddress == "" {
+		return fmt.Errorf("API server address cannot be empty for master nodes")
 	}
 
 	if c.NodeRole == "worker" && c.JoinCode == "" && c.JoinCommand == "" {
 		return fmt.Errorf("worker nodes require either join code or join command")
+	}
+
+	if c.NodeRole == "control-plane" && c.ControlPlaneJoinCode == "" && c.ControlPlaneJoinCommand == "" {
+		return fmt.Errorf("control-plane nodes require either control-plane join code or control-plane join command")
+	}
+
+	if (c.NodeRole == "worker" || c.NodeRole == "control-plane") && c.JoinServiceBaseURL == "" {
+		return fmt.Errorf("join service base URL cannot be empty")
 	}
 
 	return nil
