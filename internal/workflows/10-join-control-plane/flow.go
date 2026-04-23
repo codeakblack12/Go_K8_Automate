@@ -44,6 +44,10 @@ func (s *Step) Run() error {
 		}
 	}
 
+	if err := s.ensureContainerRuntimeReady(); err != nil {
+		return err
+	}
+
 	if err := s.resolveJoinCode(); err != nil {
 		return err
 	}

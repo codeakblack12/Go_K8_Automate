@@ -22,6 +22,10 @@ func (s *Step) resetNode() error {
 			Name: "sh",
 			Args: []string{"-c", "sudo rm -rf /etc/kubernetes /var/lib/etcd /etc/cni/net.d"},
 		},
+		{
+			Name: "sh",
+			Args: []string{"-c", "sudo systemctl restart containerd || sudo systemctl start containerd"},
+		},
 	}
 
 	for _, cmd := range commands {
