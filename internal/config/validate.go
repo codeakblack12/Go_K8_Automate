@@ -46,7 +46,7 @@ func (c *Config) Validate() error {
 		return fmt.Errorf("worker nodes require either join code or join command")
 	}
 
-	if c.NodeRole == "control-plane" && c.ControlPlaneJoinCode == "" && c.ControlPlaneJoinCommand == "" {
+	if c.NodeRole == "control-plane" && c.JoinCode == "" && c.ControlPlaneJoinCommand == "" {
 		return fmt.Errorf("control-plane nodes require either control-plane join code or control-plane join command")
 	}
 
