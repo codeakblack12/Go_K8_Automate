@@ -16,18 +16,17 @@ func (s *Step) resolveJoinCode() error {
 		return fmt.Errorf("join code is empty")
 	}
 
-	fmt.Printf("DEBUG resolving join code %q against %s\n",
-		s.config.JoinCode,
-		s.config.JoinServiceBaseURL,
-	)
-
-	resp, err := s.joinCodeClient.Resolve(s.config.JoinCode)
+	resp, err := s.joinCodeClient.Resolve(s.config.JoinCode, "worker")
 	if err != nil {
-		return fmt.Errorf("failed to resolve join code: %w", err)
+		return fmt.Errorf("failed to resolve worker join code: %w", err)
 	}
 
 	if strings.TrimSpace(resp.JoinCommand) == "" {
-		return fmt.Errorf("resolved join command is empty")
+		return fmt.Errorf("resolved worker join command is empty")
+	}
+
+	if resp.NodeRole != "worker" {
+		return fmt.Errorf("resolved join role mismatch: expected worker, got %s", resp.NodeRole)
 	}
 
 	s.config.JoinCommand = strings.TrimSpace(resp.JoinCommand)

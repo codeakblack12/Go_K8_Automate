@@ -18,9 +18,8 @@ func main() {
 
 	role := flag.String("role", cfg.NodeRole, "Node role: master, worker, or control-plane")
 	joinCommand := flag.String("join-command", cfg.JoinCommand, "Full kubeadm join command for worker nodes")
-	joinCode := flag.String("join-code", cfg.JoinCode, "Short join code for worker nodes")
 	controlPlaneJoinCommand := flag.String("control-plane-join-command", cfg.ControlPlaneJoinCommand, "Full kubeadm join command for control-plane nodes")
-	controlPlaneJoinCode := flag.String("control-plane-join-code", cfg.ControlPlaneJoinCode, "Short join code for control-plane nodes")
+	joinCode := flag.String("join-code", cfg.JoinCode, "Shared join code for worker or control-plane nodes")
 	joinServiceURL := flag.String("join-service-url", cfg.JoinServiceBaseURL, "Base URL for the join-code service")
 	apiServerAddress := flag.String("apiserver-address", cfg.APIServerAddress, "API server advertise address for master node")
 	podNetworkCIDR := flag.String("pod-network-cidr", cfg.PodNetworkCIDR, "Pod network CIDR for cluster initialization")
@@ -33,9 +32,8 @@ func main() {
 
 	cfg.NodeRole = *role
 	cfg.JoinCommand = *joinCommand
-	cfg.JoinCode = *joinCode
 	cfg.ControlPlaneJoinCommand = *controlPlaneJoinCommand
-	cfg.ControlPlaneJoinCode = *controlPlaneJoinCode
+	cfg.JoinCode = *joinCode
 	cfg.JoinServiceBaseURL = *joinServiceURL
 	cfg.APIServerAddress = *apiServerAddress
 	cfg.PodNetworkCIDR = *podNetworkCIDR
@@ -70,7 +68,10 @@ func main() {
 	fmt.Println("cluster setup completed successfully")
 }
 
-// go run ./cmd/clusterctl --role master --reset-node
+// go run ./cmd/clusterctl \
+//   --role master \
+//   --join-service-url http://<api-host>:3000 \
+//   --reset-node
 
 // go run ./cmd/clusterctl \
 //   --role worker \
@@ -79,5 +80,5 @@ func main() {
 
 // go run ./cmd/clusterctl \
 //   --role control-plane \
-//   --control-plane-join-code XYZ789 \
+//   --join-code ABC123 \
 //   --join-service-url http://<api-host>:3000

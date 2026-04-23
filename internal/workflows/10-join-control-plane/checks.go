@@ -24,14 +24,14 @@ func (s *Step) checkPrerequisites() error {
 	}
 
 	joinCmd := strings.TrimSpace(s.config.ControlPlaneJoinCommand)
-	joinCode := strings.TrimSpace(s.config.ControlPlaneJoinCode)
+	joinCode := strings.TrimSpace(s.config.JoinCode)
 
 	if joinCmd == "" && joinCode == "" {
-		return fmt.Errorf("control-plane node requires either control-plane join command or control-plane join code")
+		return fmt.Errorf("control-plane node requires either control-plane join command or shared join code")
 	}
 
 	if joinCmd == "" && strings.TrimSpace(s.config.JoinServiceBaseURL) == "" {
-		return fmt.Errorf("join service base URL is required when using control-plane join code")
+		return fmt.Errorf("join service base URL is required when using shared join code")
 	}
 
 	return nil

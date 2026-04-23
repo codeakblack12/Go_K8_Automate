@@ -8,10 +8,17 @@ import (
 )
 
 // joinCluster runs the kubeadm join command received from the control-plane node.
-func (s *Step) joinCluster() error {
-	fmt.Println("Joining worker node to the Kubernetes cluster...")
-
+func (s *Step) joinNode() error {
 	joinCmd := strings.TrimSpace(s.config.JoinCommand)
+	if joinCmd == "" {
+		return fmt.Errorf("worker join command is empty")
+	}
+
+	if strings.Contains(joinCmd, "--control-plane") {
+		return fmt.Errorf("resolved worker join command unexpectedly contains --control-plane")
+	}
+
+	fmt.Println("Joining node as worker...")
 
 	command := common.Command{
 		Name: "sh",
@@ -25,6 +32,6 @@ func (s *Step) joinCluster() error {
 		return err
 	}
 
-	fmt.Println("Worker node joined the cluster successfully")
+	fmt.Println("Worker node joined successfully")
 	return nil
 }

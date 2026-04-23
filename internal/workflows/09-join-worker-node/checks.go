@@ -1,7 +1,7 @@
 package joinworkernode
 
 import (
-	"bytes"
+	// "bytes"
 	"fmt"
 	"os/exec"
 	"strings"
@@ -26,33 +26,15 @@ func (s *Step) checkPrerequisites() error {
 		return fmt.Errorf("kubelet is not installed or not in PATH")
 	}
 
-	joinCommand := strings.TrimSpace(s.config.JoinCommand)
+	joinCmd := strings.TrimSpace(s.config.JoinCommand)
 	joinCode := strings.TrimSpace(s.config.JoinCode)
-	joinServiceURL := strings.TrimSpace(s.config.JoinServiceBaseURL)
 
-	if joinCommand == "" && joinCode == "" {
+	if joinCmd == "" && joinCode == "" {
 		return fmt.Errorf("worker node requires either join command or join code")
 	}
 
-	if joinCommand == "" && joinCode != "" && joinServiceURL == "" {
+	if joinCmd == "" && strings.TrimSpace(s.config.JoinServiceBaseURL) == "" {
 		return fmt.Errorf("join service base URL is required when using join code")
-	}
-
-	return nil
-}
-
-// checkWorkerJoined verifies that kubeadm join created kubelet config.
-func (s *Step) checkWorkerJoined() error {
-	cmd := exec.Command("sh", "-c", "test -f /etc/kubernetes/kubelet.conf && echo ok")
-	var out bytes.Buffer
-	cmd.Stdout = &out
-
-	if err := cmd.Run(); err != nil {
-		return fmt.Errorf("failed to verify worker join: %w", err)
-	}
-
-	if !strings.Contains(out.String(), "ok") {
-		return fmt.Errorf("worker join verification failed: /etc/kubernetes/kubelet.conf not found")
 	}
 
 	return nil

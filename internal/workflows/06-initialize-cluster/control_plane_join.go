@@ -60,7 +60,11 @@ func (s *Step) createControlPlaneJoinCommand() error {
 	}
 
 	if !strings.Contains(joinCmd, "--control-plane") {
-		joinCmd = joinCmd + " --control-plane"
+		return fmt.Errorf("generated control-plane join command missing --control-plane")
+	}
+
+	if !strings.Contains(joinCmd, "--certificate-key") {
+		return fmt.Errorf("generated control-plane join command missing --certificate-key")
 	}
 
 	s.config.ControlPlaneJoinCommand = joinCmd

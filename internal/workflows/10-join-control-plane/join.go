@@ -17,6 +17,10 @@ func (s *Step) joinControlPlane() error {
 		return fmt.Errorf("resolved command is not a control-plane join command")
 	}
 
+	if !strings.Contains(joinCmd, "--certificate-key") {
+		return fmt.Errorf("resolved control-plane join command is missing --certificate-key")
+	}
+
 	fmt.Println("Joining node as an additional control-plane...")
 
 	command := common.Command{

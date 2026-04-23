@@ -13,7 +13,6 @@ type Step struct {
 	joinCodeClient *joincode.Client
 }
 
-// New creates a new join-worker-node step.
 func New(cfg *config.Config) *Step {
 	return &Step{
 		config:         cfg,
@@ -22,13 +21,10 @@ func New(cfg *config.Config) *Step {
 	}
 }
 
-// Name returns the workflow step name.
 func (s *Step) Name() string {
 	return "09-join-worker-node"
 }
 
-// Run validates prerequisites, joins the worker node,
-// and verifies the result.
 func (s *Step) Run() error {
 	if err := s.checkPrerequisites(); err != nil {
 		return err
@@ -38,11 +34,7 @@ func (s *Step) Run() error {
 		return err
 	}
 
-	if err := s.joinCluster(); err != nil {
-		return err
-	}
-
-	if err := s.checkWorkerJoined(); err != nil {
+	if err := s.joinNode(); err != nil {
 		return err
 	}
 

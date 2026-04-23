@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"net/url"
 	"strings"
 	"time"
 )
@@ -24,10 +25,10 @@ func NewClient(baseURL string) *Client {
 	}
 }
 
-func (c *Client) Create(joinCommand, nodeRole string) (*CreateJoinCodeResponse, error) {
+func (c *Client) Create(workerJoinCommand, controlPlaneJoinCommand string) (*CreateJoinCodeResponse, error) {
 	payload := CreateJoinCodeRequest{
-		JoinCommand: strings.TrimSpace(joinCommand),
-		NodeRole:    strings.TrimSpace(nodeRole),
+		WorkerJoinCommand:       strings.TrimSpace(workerJoinCommand),
+		ControlPlaneJoinCommand: strings.TrimSpace(controlPlaneJoinCommand),
 	}
 
 	body, err := json.Marshal(payload)
@@ -66,10 +67,18 @@ func (c *Client) Create(joinCommand, nodeRole string) (*CreateJoinCodeResponse, 
 	return &result, nil
 }
 
-func (c *Client) Resolve(joinCode string) (*ResolveJoinCodeResponse, error) {
+func (c *Client) Resolve(joinCode, nodeRole string) (*ResolveJoinCodeResponse, error) {
 	joinCode = strings.TrimSpace(joinCode)
+	nodeRole = strings.TrimSpace(nodeRole)
 
-	req, err := http.NewRequest(http.MethodGet, c.baseURL+"/api/v1/resolve/"+joinCode, nil)
+	resolveURL := fmt.Sprintf(
+		"%s/api/v1/resolve/%s?nodeRole=%s",
+		c.baseURL,
+		url.PathEscape(joinCode),
+		url.QueryEscape(nodeRole),
+	)
+
+	req, err := http.NewRequest(http.MethodGet, resolveURL, nil)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create resolve join-code request: %w", err)
 	}

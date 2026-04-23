@@ -56,10 +56,6 @@ func (s *Step) Run() error {
 		return err
 	}
 
-	if err := s.publishJoinCode(); err != nil {
-		return err
-	}
-
 	if err := s.uploadControlPlaneCerts(); err != nil {
 		return err
 	}
@@ -68,7 +64,7 @@ func (s *Step) Run() error {
 		return err
 	}
 
-	if err := s.publishControlPlaneJoinCode(); err != nil {
+	if err := s.publishSharedJoinCode(); err != nil {
 		return err
 	}
 
