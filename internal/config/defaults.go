@@ -3,7 +3,7 @@ package config
 const (
 	defaultOSFamily              = "ubuntu"
 	defaultKubernetesRepoVersion = "v1.35"
-	defaultAPIServerAddress      = "192.168.1.20"
+	defaultAPIServerAddress      = ""
 	defaultPodNetworkCIDR        = "10.244.0.0/16"
 	defaultKubernetesVersion     = ""
 	defaultNodeRole              = "master"

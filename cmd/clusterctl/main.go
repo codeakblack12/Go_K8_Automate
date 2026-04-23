@@ -7,6 +7,7 @@ import (
 
 	"Go_K8_Automate/internal/app/orchestrator"
 	"Go_K8_Automate/internal/config"
+	"Go_K8_Automate/internal/utils/network"
 )
 
 // main is the CLI entry point.
@@ -49,6 +50,17 @@ func main() {
 	if err := orch.Run(); err != nil {
 		fmt.Fprintf(os.Stderr, "cluster setup failed: %v\n", err)
 		os.Exit(1)
+	}
+
+	if cfg.NodeRole == "master" && cfg.APIServerAddress == "" {
+		detectedIP, err := network.DetectPrimaryIPv4()
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "failed to detect API server address automatically: %v\n", err)
+			os.Exit(1)
+		}
+
+		cfg.APIServerAddress = detectedIP
+		fmt.Printf("Detected API server advertise address: %s\n", cfg.APIServerAddress)
 	}
 
 	fmt.Println("cluster setup completed successfully")

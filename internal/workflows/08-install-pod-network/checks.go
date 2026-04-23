@@ -1,10 +1,8 @@
 package installpodnetwork
 
 import (
-	"bytes"
 	"fmt"
 	"os/exec"
-	"strings"
 )
 
 // checkPrerequisites validates whether this step can run.
@@ -24,30 +22,52 @@ func (s *Step) checkPrerequisites() error {
 	return nil
 }
 
-// checkPodNetworkInstalled verifies that network-related pods exist in kube-system.
+// checkPodNetworkInstalled waits for the selected CNI resources to roll out.
 func (s *Step) checkPodNetworkInstalled() error {
-	var command string
-
 	switch s.config.PodNetworkPlugin {
 	case "calico":
-		command = "kubectl get pods -n kube-system | grep calico"
+		if err := exec.Command(
+			"kubectl", "rollout", "status",
+			"daemonset/calico-node",
+			"-n", "kube-system",
+			"--timeout=180s",
+		).Run(); err != nil {
+			return fmt.Errorf("failed waiting for calico-node daemonset rollout: %w", err)
+		}
+
+		if err := exec.Command(
+			"kubectl", "rollout", "status",
+			"deployment/calico-kube-controllers",
+			"-n", "kube-system",
+			"--timeout=180s",
+		).Run(); err != nil {
+			return fmt.Errorf("failed waiting for calico-kube-controllers rollout: %w", err)
+		}
+
+		return nil
+
 	case "cilium":
-		command = "kubectl get pods -n kube-system | grep cilium"
+		if err := exec.Command(
+			"kubectl", "rollout", "status",
+			"daemonset/cilium",
+			"-n", "kube-system",
+			"--timeout=180s",
+		).Run(); err != nil {
+			return fmt.Errorf("failed waiting for cilium daemonset rollout: %w", err)
+		}
+
+		if err := exec.Command(
+			"kubectl", "rollout", "status",
+			"deployment/cilium-operator",
+			"-n", "kube-system",
+			"--timeout=180s",
+		).Run(); err != nil {
+			return fmt.Errorf("failed waiting for cilium-operator rollout: %w", err)
+		}
+
+		return nil
+
 	default:
 		return fmt.Errorf("unsupported pod network plugin: %s", s.config.PodNetworkPlugin)
 	}
-
-	cmd := exec.Command("sh", "-c", command)
-	var out bytes.Buffer
-	cmd.Stdout = &out
-
-	if err := cmd.Run(); err != nil {
-		return fmt.Errorf("failed to verify pod network installation: %w", err)
-	}
-
-	if strings.TrimSpace(out.String()) == "" {
-		return fmt.Errorf("pod network verification failed: no matching plugin pods found")
-	}
-
-	return nil
 }
