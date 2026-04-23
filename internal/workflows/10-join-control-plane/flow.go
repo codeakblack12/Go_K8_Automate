@@ -29,6 +29,21 @@ func (s *Step) Run() error {
 		return err
 	}
 
+	stale, reason, err := s.hasStaleNodeState()
+	if err != nil {
+		return err
+	}
+
+	if stale {
+		if !s.config.ResetNode {
+			return &StaleNodeStateError{Reason: reason}
+		}
+
+		if err := s.resetNode(); err != nil {
+			return err
+		}
+	}
+
 	if err := s.resolveJoinCode(); err != nil {
 		return err
 	}
