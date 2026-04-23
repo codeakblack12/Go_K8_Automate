@@ -22,6 +22,7 @@ func main() {
 	joinCode := flag.String("join-code", cfg.JoinCode, "Shared join code for worker or control-plane nodes")
 	joinServiceURL := flag.String("join-service-url", cfg.JoinServiceBaseURL, "Base URL for the join-code service")
 	apiServerAddress := flag.String("apiserver-address", cfg.APIServerAddress, "API server advertise address for master node")
+	controlPlaneEndpoint := flag.String("control-plane-endpoint", cfg.ControlPlaneEndpoint, "Stable control plane endpoint, e.g. 10.0.0.100:6443")
 	podNetworkCIDR := flag.String("pod-network-cidr", cfg.PodNetworkCIDR, "Pod network CIDR for cluster initialization")
 	podNetworkPlugin := flag.String("pod-network-plugin", cfg.PodNetworkPlugin, "Pod network plugin: calico or cilium")
 	kubernetesVersion := flag.String("kubernetes-version", cfg.KubernetesVersion, "Optional Kubernetes version for kubeadm init")
@@ -36,6 +37,7 @@ func main() {
 	cfg.JoinCode = *joinCode
 	cfg.JoinServiceBaseURL = *joinServiceURL
 	cfg.APIServerAddress = *apiServerAddress
+	cfg.ControlPlaneEndpoint = *controlPlaneEndpoint
 	cfg.PodNetworkCIDR = *podNetworkCIDR
 	cfg.PodNetworkPlugin = *podNetworkPlugin
 	cfg.KubernetesVersion = *kubernetesVersion
@@ -70,7 +72,10 @@ func main() {
 
 // go run ./cmd/clusterctl \
 //   --role master \
-//   --join-service-url http://<api-host>:3000 \
+//   --apiserver-address 10.0.0.124 \
+//   --control-plane-endpoint 10.0.0.100:6443 \
+//   --join-service-url http://10.0.0.124:3000 \
+//   --pod-network-cidr 10.244.0.0/16 \
 //   --reset-node
 
 // go run ./cmd/clusterctl \

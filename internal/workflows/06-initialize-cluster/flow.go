@@ -9,11 +9,12 @@ import (
 
 // Step handles workflow step 06: initializing the Kubernetes cluster.
 type Step struct {
-	config         *config.Config
-	executor       *local.Executor
-	joinCodeClient *joincode.Client
-	joinCommand    string
-	joinCode       string
+	config            *config.Config
+	executor          *local.Executor
+	joinCodeClient    *joincode.Client
+	joinCommand       string
+	joinCode          string
+	kubeadmConfigPath string
 }
 
 func New(cfg *config.Config) *Step {
@@ -46,6 +47,10 @@ func (s *Step) Run() error {
 		if err := s.resetNode(); err != nil {
 			return err
 		}
+	}
+
+	if err := s.writeKubeadmConfig(); err != nil {
+		return err
 	}
 
 	if err := s.initControlPlane(); err != nil {

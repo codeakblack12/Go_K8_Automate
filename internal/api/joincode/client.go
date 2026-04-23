@@ -36,7 +36,7 @@ func (c *Client) Create(workerJoinCommand, controlPlaneJoinCommand string) (*Cre
 		return nil, fmt.Errorf("failed to marshal create join-code request: %w", err)
 	}
 
-	req, err := http.NewRequest(http.MethodPost, c.baseURL+"/join", bytes.NewBuffer(body))
+	req, err := http.NewRequest(http.MethodPost, c.baseURL+"/api/v1/join", bytes.NewBuffer(body))
 	if err != nil {
 		return nil, fmt.Errorf("failed to create join-code request: %w", err)
 	}
@@ -72,7 +72,7 @@ func (c *Client) Resolve(joinCode, nodeRole string) (*ResolveJoinCodeResponse, e
 	nodeRole = strings.TrimSpace(nodeRole)
 
 	resolveURL := fmt.Sprintf(
-		"%s/resolve/%s?nodeRole=%s",
+		"%s/api/v1/resolve/%s?nodeRole=%s",
 		c.baseURL,
 		url.PathEscape(joinCode),
 		url.QueryEscape(nodeRole),

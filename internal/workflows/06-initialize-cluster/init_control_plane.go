@@ -2,6 +2,7 @@ package initializecluster
 
 import (
 	"fmt"
+	"strings"
 
 	"Go_K8_Automate/internal/executor/common"
 )
@@ -10,24 +11,20 @@ import (
 func (s *Step) initControlPlane() error {
 	fmt.Println("STEP 6: Initializing Kubernetes cluster...")
 
-	args := []string{
-		"kubeadm",
-		"init",
-		"--apiserver-advertise-address", s.config.APIServerAddress,
-		"--pod-network-cidr", s.config.PodNetworkCIDR,
+	if strings.TrimSpace(s.kubeadmConfigPath) == "" {
+		return fmt.Errorf("kubeadm config path is empty")
 	}
 
-	if s.config.KubernetesVersion != "" {
-		args = append(args, "--kubernetes-version", s.config.KubernetesVersion)
+	command := common.Command{
+		Name: "sh",
+		Args: []string{
+			"-c",
+			fmt.Sprintf("sudo kubeadm init --config %s --upload-certs", s.kubeadmConfigPath),
+		},
 	}
 
-	initCmd := common.Command{
-		Name: "sudo",
-		Args: args,
-	}
-
-	if err := s.executor.Run(initCmd); err != nil {
-		return err
+	if err := s.executor.Run(command); err != nil {
+		return fmt.Errorf("failed to initialize control plane: %w", err)
 	}
 
 	fmt.Println("STEP 6 complete: Kubernetes control plane initialized")

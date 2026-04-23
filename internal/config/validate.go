@@ -11,10 +11,12 @@ func (c *Config) Validate() error {
 	c.JoinServiceBaseURL = strings.TrimRight(strings.TrimSpace(c.JoinServiceBaseURL), "/")
 	c.JoinCode = strings.TrimSpace(c.JoinCode)
 	c.JoinCommand = strings.TrimSpace(c.JoinCommand)
-	c.ControlPlaneJoinCode = strings.TrimSpace(c.ControlPlaneJoinCode)
 	c.ControlPlaneJoinCommand = strings.TrimSpace(c.ControlPlaneJoinCommand)
 	c.CertificateKey = strings.TrimSpace(c.CertificateKey)
 	c.ControlPlaneEndpoint = strings.TrimSpace(c.ControlPlaneEndpoint)
+	c.APIServerAddress = strings.TrimSpace(c.APIServerAddress)
+	c.PodNetworkCIDR = strings.TrimSpace(c.PodNetworkCIDR)
+	c.KubernetesVersion = strings.TrimSpace(c.KubernetesVersion)
 
 	switch c.OSFamily {
 	case "ubuntu":
@@ -42,12 +44,16 @@ func (c *Config) Validate() error {
 		return fmt.Errorf("API server address cannot be empty for master nodes")
 	}
 
+	if c.NodeRole == "master" && c.ControlPlaneEndpoint == "" {
+		return fmt.Errorf("control plane endpoint cannot be empty for HA-capable master initialization")
+	}
+
 	if c.NodeRole == "worker" && c.JoinCode == "" && c.JoinCommand == "" {
 		return fmt.Errorf("worker nodes require either join code or join command")
 	}
 
 	if c.NodeRole == "control-plane" && c.JoinCode == "" && c.ControlPlaneJoinCommand == "" {
-		return fmt.Errorf("control-plane nodes require either control-plane join code or control-plane join command")
+		return fmt.Errorf("control-plane nodes require either shared join code or control-plane join command")
 	}
 
 	if (c.NodeRole == "worker" || c.NodeRole == "control-plane") && c.JoinServiceBaseURL == "" {
