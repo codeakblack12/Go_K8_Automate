@@ -7,7 +7,8 @@ import (
 	"strings"
 )
 
-// checkPrerequisites validates whether this step can run.
+// checkPrerequisites validates whether the worker node can proceed
+// with resolving the join code and joining the cluster.
 func (s *Step) checkPrerequisites() error {
 	if s.config == nil {
 		return fmt.Errorf("missing configuration")
@@ -21,8 +22,20 @@ func (s *Step) checkPrerequisites() error {
 		return fmt.Errorf("kubeadm is not installed or not in PATH")
 	}
 
-	if strings.TrimSpace(s.config.JoinCommand) == "" {
-		return fmt.Errorf("join command is empty")
+	if _, err := exec.LookPath("kubelet"); err != nil {
+		return fmt.Errorf("kubelet is not installed or not in PATH")
+	}
+
+	joinCommand := strings.TrimSpace(s.config.JoinCommand)
+	joinCode := strings.TrimSpace(s.config.JoinCode)
+	joinServiceURL := strings.TrimSpace(s.config.JoinServiceBaseURL)
+
+	if joinCommand == "" && joinCode == "" {
+		return fmt.Errorf("worker node requires either join command or join code")
+	}
+
+	if joinCommand == "" && joinCode != "" && joinServiceURL == "" {
+		return fmt.Errorf("join service base URL is required when using join code")
 	}
 
 	return nil
